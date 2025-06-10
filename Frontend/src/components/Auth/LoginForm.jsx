@@ -24,7 +24,7 @@ const LoginForm = () => {
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", refreshToken);
             loginUser(user);
-            navigate("/");
+            navigate("/blogs");
         } catch (err) {
             setError(err.response?.data?.message || "Login failed");
         } finally {

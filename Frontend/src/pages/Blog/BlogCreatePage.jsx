@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BlogForm from "../../../components/Blog/BlogForm";
-import Alert from "../../../components/UI/Alert";
-import { createBlog } from "../../blogService";
+import BlogForm from "../../components/Blog/BlogForm";
+import Alert from "../../components/UI/Alert";
+import { createBlog } from "../../services/blogService";
 
 const BlogCreatePage = () => {
   const navigate = useNavigate();

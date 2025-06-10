@@ -2,13 +2,13 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import PrivateRoute from "./components/Auth/PrivateRoute";
 import Footer from "./components/Layout/Footer";
 import Header from "./components/Layout/Header";
-import LoginPage from "./services/pages/Auth/LoginPage";
-import RegisterPage from "./services/pages/Auth/RegisterPage";
-import BlogCreatePage from "./services/pages/Blog/BlogCreatePage";
-import BlogDetailPage from "./services/pages/Blog/BlogDetailPage";
-import BlogEditPage from "./services/pages/Blog/BlogEditPage";
-import BlogListPage from "./services/pages/Blog/BlogListPage";
-import HomePage from "./services/pages/HomePage";
+import LoginPage from "./pages/Auth/LoginPage";
+import RegisterPage from "./pages/Auth/RegisterPage";
+import BlogCreatePage from "./pages/Blog/BlogCreatePage";
+import BlogDetailPage from "./pages/Blog/BlogDetailPage";
+import BlogEditPage from "./pages/Blog/BlogEditPage";
+import BlogListPage from "./pages/Blog/BlogListPage";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
     return (

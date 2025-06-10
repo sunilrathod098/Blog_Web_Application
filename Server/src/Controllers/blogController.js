@@ -30,7 +30,7 @@ export const createBlog = asyncHandler(async (req, res) => {
 });
 
 
-export const getBlogs = asyncHandler(async (req, res) => {
+export const getAllBlogs = asyncHandler(async (req, res) => {
     const pages = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (pages - 1) * limit;
@@ -38,6 +38,9 @@ export const getBlogs = asyncHandler(async (req, res) => {
     const blogs = await Blog.find().skip(skip).limit(limit).sort({
         createdAt: -1
     });
+    const total = await Blog.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+
     if (!blogs || blogs.length === 0) {
         throw new ApiError(404, 'No blogs are found');
     }
@@ -46,7 +49,12 @@ export const getBlogs = asyncHandler(async (req, res) => {
         new ApiResponse(
             200,
             'Blogs fetched successfully',
-            blogs
+            blogs,
+            {
+                currentPage: pages,
+                totalPages: totalPages,
+                totalBlogs: total
+            }
         )
     );
 });

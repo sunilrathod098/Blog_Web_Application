@@ -17,8 +17,7 @@ export const AuthProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error("Auth check failed:", error);
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
+                // Don't clear tokens automatically - might be temporary server issue
             } finally {
                 setLoading(false);
             }
@@ -27,8 +26,10 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    const loginUser = (userData) => {
+    const loginUser = (userData, tokens) => {
         setUser(userData);
+        localStorage.setItem("accessToken", tokens.accessToken);
+        localStorage.setItem("refreshToken", tokens.refreshToken);
     };
 
     const logoutUser = () => {
@@ -44,5 +45,10 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
+};

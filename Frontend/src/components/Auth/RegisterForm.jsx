@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { register } from "../../services/authService";
+import Alert from "../UI/Alert";
 import Button from "../UI/Button";
 
 const RegisterForm = () => {

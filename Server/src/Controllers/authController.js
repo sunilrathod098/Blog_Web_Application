@@ -20,21 +20,21 @@ export const generateAccessAndRefreshTokens = async (userId) => {
 
 
 export const registerUser = asyncHandler(async (req, res) => {
-    const { username, email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    if (![username, email, password].every(Boolean)) {
-        throw new ApiError(400, 'All fields are required');
+    if (![name, email, password].every(Boolean)) {
+        throw new ApiError(401, 'All fields are required');
     }
 
     const existedUser = await User.findOne({
-        $or: [{ username }, { email }]
+        $or: [{ name }, { email }]
     })
     if (existedUser) {
-        throw new ApiError(400, 'User already exists with this username or email');
+        throw new ApiError(400, 'User already exists with this name or email');
     }
 
     const user = await User.create({
-        username,
+        name,
         email,
         password
     })

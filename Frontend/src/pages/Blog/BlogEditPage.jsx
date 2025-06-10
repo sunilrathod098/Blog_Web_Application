@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import BlogForm from "../../../components/Blog/BlogForm";
-import Alert from "../../../components/UI/Alert";
-import Loader from "../../../components/UI/Loader";
-import { useAuth } from "../../../context/AuthContext";
-import { getBlogById, updateBlog } from "../../blogService";
+import BlogForm from "../../components/Blog/BlogForm";
+import Alert from "../../components/UI/Alert";
+import Loader from "../../components/UI/Loader";
+import { useAuth } from "../../context/AuthContext";
+import { getBlogById, updateBlog } from "../../services/blogService";
 
 const BlogEditPage = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const BlogEditPage = () => {
         const fetchedBlog = await getBlogById(id);
 
         // Check if current user is the author
-        if (user._id !== fetchedBlog.author._id) {
+        if (!loading && user._id !== fetchedBlog.author._id) {
           navigate("/");
           return;
         }
@@ -35,7 +35,7 @@ const BlogEditPage = () => {
     };
 
     fetchBlog();
-  }, [id, user, navigate]);
+  }, [blog, user, loading, id, navigate]);
 
   const onSubmit = async (data) => {
     setSubmitLoading(true);

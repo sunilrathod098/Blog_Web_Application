@@ -1,13 +1,16 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api'; // Your backend URL
+const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: API_URL,
     withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
 });
 
-// Request interceptor to add auth token to requests
+// Request interceptor to add auth token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
@@ -16,19 +19,19 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Response interceptor to handle token refresh
+// Response interceptor for token refresh
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
                 const response = await axios.post(`${API_URL}/auth/refresh-token`, {
                     refreshToken: localStorage.getItem('refreshToken')
-                });
+                }, { withCredentials: true });
 
                 const { accessToken } = response.data;
                 localStorage.setItem('accessToken', accessToken);
@@ -36,7 +39,6 @@ api.interceptors.response.use(
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return api(originalRequest);
             } catch (err) {
-                // If refresh fails, logout user
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 window.location.href = '/login';

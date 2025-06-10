@@ -4,7 +4,7 @@ import mongoose, { Schema } from 'mongoose';
 import ApiError from '../Utils/ApiError.js';
 
 const userSchema = new Schema({
-    username: {
+    name: {
         type: String,
         required: true,
         trim: true,
@@ -46,7 +46,7 @@ userSchema.methods.isMatchPassword = async function (password) {
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign({
         id: this._id,
-        username: this.username,
+        name: this.name,
         email: this.email
     },
         process.env.ACCESS_TOKEN_SECRET, {

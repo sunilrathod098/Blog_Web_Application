@@ -1,4 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import React from "react";
+
 
 const Alert = ({ type = "success", message, onClose }) => {
     const bgColor = {
