@@ -2,21 +2,34 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BlogForm from "../../components/Blog/BlogForm";
 import Alert from "../../components/UI/Alert";
-import { createBlog } from "../../services/blogService";
+import { useAuth } from "../../context/AuthContext";
+import { useBlogs } from "../../context/BlogContext"; // Import useBlogs
 
 const BlogCreatePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createNewBlog } = useBlogs(); // Use context
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    setError(null);
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
+  const handleSubmit = async (blogData) => {
     try {
-      await createBlog(data);
-      navigate("/");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to create blog");
+      setLoading(true);
+      setError(null);
+      await createNewBlog({
+        ...blogData,
+        author: user._id,
+      });
+      navigate("/blog", {
+        state: { message: "Blog post created successfully" },
+      });
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to create blog post");
     } finally {
       setLoading(false);
     }
@@ -28,9 +41,13 @@ const BlogCreatePage = () => {
         Create New Blog Post
       </h1>
 
-      {error && <Alert type="error" message={error} />}
+      {error && <Alert type="error" message={error} className="mb-4" />}
 
-      <BlogForm onSubmit={onSubmit} loading={loading} />
+      <BlogForm
+        onSubmit={handleSubmit}
+        loading={loading}
+        initialData={{ title: "", content: "" }}
+      />
     </div>
   );
 };

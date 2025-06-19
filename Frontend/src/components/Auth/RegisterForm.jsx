@@ -21,13 +21,22 @@ const RegisterForm = () => {
         setLoading(true);
         setError(null);
         try {
-            const { user, accessToken, refreshToken } = await register(data);
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
-            loginUser(user);
+            const result = await register(data);
+            if (result.success) {
+                throw new Error(result.message);
+            }
+
+            if (result.tokens) {
+                localStorage.setItem("accessToken", result.tokens.accessToken);
+                localStorage.setItem("refreshToken", result.tokens.refreshToken);
+            }
+
+            if (result.user) {
+                loginUser(result.user);
+            }
             navigate("/login");
         } catch (err) {
-            setError(err.response?.data?.message || "Registration failed");
+            setError(err.message || "Registration failed");
         } finally {
             setLoading(false);
         }
@@ -47,6 +56,7 @@ const RegisterForm = () => {
                 <input
                     id="name"
                     type="text"
+                    autoCapitalize="name"
                     {...registerForm("name", { required: "Name is required" })}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -65,6 +75,7 @@ const RegisterForm = () => {
                 <input
                     id="email"
                     type="email"
+                    autoCapitalize="name"
                     {...registerForm("email", {
                         required: "Email is required",
                         pattern: {
@@ -89,10 +100,11 @@ const RegisterForm = () => {
                 <input
                     id="password"
                     type="password"
+                    autoCapitalize="new-password"
                     {...registerForm("password", {
                         required: "Password is required",
                         minLength: {
-                            value: 6,
+                            value: 8,
                             message: "Password must be at least 6 characters",
                         },
                     })}

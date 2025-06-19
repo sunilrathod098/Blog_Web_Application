@@ -58,7 +58,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     // console.log("Request body:", req.body);
 
     if (![email, password].every(Boolean)) {
-        throw new ApiError(400  , 'All fields are required')
+        throw new ApiError(400, 'All fields are required')
     }
 
     const user = await User.findOne({ email }).select('+password +refreshToken');
@@ -87,7 +87,8 @@ export const loginUser = asyncHandler(async (req, res) => {
                 'User logged in successfully',
                 {
                     user: loggedInUser,
-                    tokens: { accessToken, refreshToken }
+                    accessToken,
+                    refreshToken
                 }
             )
         )
@@ -116,6 +117,25 @@ export const logoutUser = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200,
                 'User logged out successfully'
+            )
+        );
+});
+
+export const authorInfo = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    if (!userId) {
+        throw new ApiError(400, 'User ID is required to get author info');
+    }
+    const user = await User.findById(userId).select('+profile');
+    if (!user) {
+        throw new ApiError(404, 'User not found');
+    }
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                'Author info retrieved successfully',
+                user
             )
         );
 });

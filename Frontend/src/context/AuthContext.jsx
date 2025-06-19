@@ -9,15 +9,28 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const checkAuth = async () => {
+            const token = localStorage.getItem("accessToken");
             try {
-                const token = localStorage.getItem("accessToken");
-                if (token) {
-                    const userData = await getCurrentUser();
-                    setUser(userData);
+                if (!token) {
+                    setUser(null);
+                    return;
+                }
+
+                const response = await getCurrentUser();
+
+                // Only set user if the request was truly successful
+                if (response.success) {
+                    setUser(response.data);
+                } else {
+                    setUser(null);
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
                 }
             } catch (error) {
                 console.error("Auth check failed:", error);
-                // Don't clear tokens automatically - might be temporary server issue
+                setUser(null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
             } finally {
                 setLoading(false);
             }
@@ -26,10 +39,21 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
-    const loginUser = (userData, tokens) => {
-        setUser(userData);
-        localStorage.setItem("accessToken", tokens.accessToken);
-        localStorage.setItem("refreshToken", tokens.refreshToken);
+    const registerUser = (userData) => {
+        // register user logic here
+        setUser({
+            ...userData,
+            accessToken: "accessToken",
+            refreshToken: "refreshToken",
+        });
+    };
+
+    const loginUser = (userData) => {
+        setUser({
+            _id: userData._id,
+            name: userData.name,
+            email: userData.email,
+        });
     };
 
     const logoutUser = () => {
@@ -39,8 +63,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginUser, logoutUser }}>
-            {children}
+        <AuthContext.Provider
+            value={{ user, loading, loginUser, logoutUser, registerUser }}
+        >
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
@@ -52,3 +78,5 @@ export const useAuth = () => {
     }
     return context;
 };
+
+export { AuthContext };

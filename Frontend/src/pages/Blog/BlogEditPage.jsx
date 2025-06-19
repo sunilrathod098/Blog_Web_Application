@@ -22,7 +22,7 @@ const BlogEditPage = () => {
 
         // Check if current user is the author
         if (!loading && user._id !== fetchedBlog.author._id) {
-          navigate("/");
+          navigate("/blog");
           return;
         }
 

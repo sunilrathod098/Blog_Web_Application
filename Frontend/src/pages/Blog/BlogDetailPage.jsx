@@ -14,6 +14,11 @@ const BlogDetailPage = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    if (id === "create") {
+      navigate("/blog/create");
+      return;
+    }
+
     const fetchBlog = async () => {
       try {
         setLoading(true);
@@ -27,13 +32,13 @@ const BlogDetailPage = () => {
     };
 
     fetchBlog();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
         await deleteBlog(id);
-        navigate("/blogs", { state: { message: "Blog deleted successfully" } });
+        navigate("/blog", { state: { message: "Blog deleted successfully" } });
       } catch (err) {
         setError(err.response?.data?.message || "Failed to delete blog");
       }
@@ -78,7 +83,7 @@ const BlogDetailPage = () => {
 
       <div className="mt-8">
         <Link
-          to="/blogs"
+          to="/blog"
           className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
         >
           Back to Blogs

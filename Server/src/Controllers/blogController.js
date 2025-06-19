@@ -1,32 +1,38 @@
-import { User } from '../Models/UserModel.js';
+import { Blog } from '../Models/blogModel.js';
 import ApiError from '../Utils/ApiError.js';
 import ApiResponse from '../Utils/ApiResponse.js';
 import asyncHandler from '../Utils/asyncHandler.js';
-import { Blog } from '../Models/blogModel.js';
 
 export const createBlog = asyncHandler(async (req, res) => {
-    const { title, content, author } = req.body;
+    try {
+        const { title, content, author } = req.body;
 
-    if (![title, content, author].every(Boolean)) {
-        throw new ApiError(400, 'All fields (title, content, author) are required');
+        if (![title, content, author].every(Boolean)) {
+            throw new ApiError(400, 'All fields (title, content, author) are required');
+        }
+
+        const newBlog = await Blog.create({
+            title,
+            content,
+            author
+        });
+        console.log(newBlog);
+        
+        if (!newBlog) {
+            throw new ApiError(500, 'Failed to create blog');
+        }
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                'Blog created successfully',
+                newBlog
+            )
+        );
+    } catch (error) {
+        next(error);
+        console.log("This error is showing creating blogs", error);
     }
-
-    const newBlog = await Blog.create({
-        title,
-        content,
-        author
-    })
-    if (!newBlog) {
-        throw new ApiError(500, 'Failed to create blog');
-    }
-
-    return res.status(201).json(
-        new ApiResponse(
-            201,
-            'Blog created successfully',
-            newBlog
-        )
-    );
 });
 
 
@@ -66,7 +72,7 @@ export const getBlogById = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Blog ID is required');
     }
 
-    const blog = await Blog.findById(blogId).populate('author', 'username email');
+    const blog = await Blog.findById(blogId).populate('author', 'name email');
     if (!blog) {
         throw new ApiError(404, 'Blog not found');
     }

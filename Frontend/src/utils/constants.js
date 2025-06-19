@@ -6,7 +6,7 @@ export const ROUTES = {
     HOME: '/',
     LOGIN: '/login',
     REGISTER: '/register',
-    BLOGS: '/blogs',
+    BLOGS: '/blog',
     BLOG_CREATE: '/blog/create',
     BLOG_DETAIL: '/blog/:id',
     BLOG_EDIT: '/blog/edit/:id',

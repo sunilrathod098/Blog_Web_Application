@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import {
     createBlog,
     deleteBlog,
@@ -11,29 +11,38 @@ const BlogContext = createContext();
 
 export const BlogProvider = ({ children }) => {
     const [currentBlog, setCurrentBlog] = useState(null);
+    const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const createNewBlog = async (blogData) => {
         try {
             setLoading(true);
+            setError(null);
             const blog = await createBlog(blogData);
+            setBlogs((prev) => [blog, ...prev]);
             return blog;
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to create blog");
+            setError(
+                err.response?.data?.message || err.message || "Failed to create blog"
+            );
             throw err;
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchAllBlogs = async (page = 1, limit = 10) => {
+    const fetchAllBlogs = async () => {
         try {
             setLoading(true);
-            const { blogs, currentPage, totalPages } = await getAllBlogs(page, limit);
-            return { blogs, currentPage, totalPages };
+            setError(null);
+            const blogsData = await getAllBlogs();
+            setBlogs(blogsData);
+            return blogsData;
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to fetch blogs");
+            setError(
+                err.response?.data?.message || err.message || "Failed to fetch blogs"
+            );
             throw err;
         } finally {
             setLoading(false);
@@ -43,11 +52,16 @@ export const BlogProvider = ({ children }) => {
     const fetchBlogById = async (id) => {
         try {
             setLoading(true);
+            setError(null);
             const blog = await getBlogById(id);
             setCurrentBlog(blog);
             return blog;
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to fetch blog");
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                `Failed to fetch blog with ID ${id}`
+            );
             throw err;
         } finally {
             setLoading(false);
@@ -57,11 +71,21 @@ export const BlogProvider = ({ children }) => {
     const updateExistingBlog = async (id, blogData) => {
         try {
             setLoading(true);
+            setError(null);
             const updatedBlog = await updateBlog(id, blogData);
-            setCurrentBlog(updatedBlog);
+            setBlogs((prev) =>
+                prev.map((blog) => (blog._id === id ? updatedBlog : blog))
+            );
+            if (currentBlog?._id === id) {
+                setCurrentBlog(updatedBlog);
+            }
             return updatedBlog;
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to update blog");
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                `Failed to update blog with ID ${id}`
+            );
             throw err;
         } finally {
             setLoading(false);
@@ -71,10 +95,18 @@ export const BlogProvider = ({ children }) => {
     const deleteExistingBlog = async (id) => {
         try {
             setLoading(true);
+            setError(null);
             await deleteBlog(id);
-            setCurrentBlog(null);
+            setBlogs((prev) => prev.filter((blog) => blog._id !== id));
+            if (currentBlog?._id === id) {
+                setCurrentBlog(null);
+            }
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to delete blog");
+            setError(
+                err.response?.data?.message ||
+                err.message ||
+                `Failed to delete blog with ID ${id}`
+            );
             throw err;
         } finally {
             setLoading(false);
@@ -89,6 +121,7 @@ export const BlogProvider = ({ children }) => {
         <BlogContext.Provider
             value={{
                 currentBlog,
+                blogs,
                 loading,
                 error,
                 createNewBlog,
@@ -104,4 +137,4 @@ export const BlogProvider = ({ children }) => {
     );
 };
 
-// Remove useBlog export from this file for Fast Refresh compatibility.
+export const useBlogs = () => useContext(BlogContext);

@@ -1,7 +1,8 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+    import { BrowserRouter, Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/Auth/PrivateRoute";
-import Footer from "./components/Layout/Footer";
-import Header from "./components/Layout/Header";
+import Layout from "./components/Layout/Layout";
+import { AuthProvider } from "./context/AuthContext";
+import { BlogProvider } from "./context/BlogContext";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
 import BlogCreatePage from "./pages/Blog/BlogCreatePage";
@@ -10,30 +11,30 @@ import BlogEditPage from "./pages/Blog/BlogEditPage";
 import BlogListPage from "./pages/Blog/BlogListPage";
 import HomePage from "./pages/HomePage";
 
-const App = () => {
+function App() {
     return (
-        <Router>
-            <div className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-grow">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/register" element={<RegisterPage />} />
-                        <Route path="/blogs" element={<BlogListPage />} />
-                        <Route path="/blog/:id" element={<BlogDetailPage />} />
+        <BrowserRouter>
+            <AuthProvider>
+                <BlogProvider>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/register" element={<RegisterPage />} />
 
-                        {/* Protected routes */}
-                        <Route element={<PrivateRoute />}>
-                            <Route path="/blog/create" element={<BlogCreatePage />} />
-                            <Route path="/blog/edit/:id" element={<BlogEditPage />} />
-                        </Route>
-                    </Routes>
-                </main>
-                <Footer />
-            </div>
-        </Router>
+                            {/* Protected Routes */}
+                            <Route element={<PrivateRoute />}>
+                                <Route path="/blog" element={<BlogListPage />} />
+                                <Route path="/blog/create" element={<BlogCreatePage />} />
+                                <Route path="/blog/:id" element={<BlogDetailPage />} />
+                                <Route path="/blog/edit/:id" element={<BlogEditPage />} />
+                            </Route>
+                        </Routes>
+                    </Layout>
+                </BlogProvider>
+            </AuthProvider>
+        </BrowserRouter>
     );
-};
+}
 
 export default App;
